@@ -5,8 +5,8 @@
 # 2020-24 Jaroslaw Szczegielniak, Benjamin Kellenberger
 #
 
-# check required libraries
-libCheck="$(python install/verify_installed_libs.py)"
+# check required libraries (filter out warnings, only fail on actual import errors)
+libCheck="$(python install/verify_installed_libs.py 2>&1 | grep -E '(No module named|ImportError|ModuleNotFoundError)' || true)"
 if [ ${#libCheck} -gt 0 ]; then
     echo "The following libraries could not be imported: $libCheck"
     exit 1
