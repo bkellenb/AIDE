@@ -62,7 +62,7 @@ WORKDIR /home/$USERNAME/app
 RUN python -m pip install --upgrade pip
 RUN python -m pip install torch torchvision
 COPY requirements.txt docker/requirements.txt
-RUN python -m pip install git+https://github.com/facebookresearch/detectron2.git
+RUN python -m pip install --no-build-isolation git+https://github.com/facebookresearch/detectron2.git
 RUN python -m pip install -r docker/requirements.txt
 
 # 2024/04/27: need to upgrade OpenSSL to avoid bug about "X509_V_FLAG_NOTIFY_POLICY"
