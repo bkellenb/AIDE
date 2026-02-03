@@ -51,10 +51,13 @@ function start {
 
     if [ $numHTTPmodules -gt 0 ]; then
         # perform verbose pre-flight checks
-        $python_exec setup/assemble_server.py --migrate_db 1
+        # Note: use timeout because ThreadedConnectionPool creates background threads that prevent clean exit
+        timeout 30 $python_exec setup/assemble_server.py --migrate_db 1
+        exit_code=$?
 
-        if [ $? -eq 0 ]; then
-            # pre-flight checks succeeded; get host and port from configuration file
+        if [ $exit_code -eq 0 ] || [ $exit_code -eq 124 ]; then
+            # pre-flight checks succeeded (exit 0) or timed out after success (exit 124)
+            # get host and port from configuration file
             host=$($python_exec util/configDef.py --section=Server --parameter=host)
             port=$($python_exec util/configDef.py --section=Server --parameter=port)
             numWorkers=$($python_exec util/configDef.py --section=Server --parameter=numWorkers --type=int --fallback=6)
