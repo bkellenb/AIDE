@@ -6,13 +6,33 @@
 
 import os
 from io import BytesIO
-from bottle import static_file, request, abort, _file_iter_range, parse_range_header, HTTPResponse
+from bottle import static_file, request, abort, parse_range_header, HTTPResponse
 
 from util.cors import enable_cors
 from util import helpers
 from util.logDecorator import LogDecorator
 from util.drivers import is_web_compatible, GDALImageDriver
 from ..module import Module
+
+
+def _file_iter_range(fp, offset, bytes_to_read, maxread=1024*1024):
+    """
+    Yield chunks from a file-like object, implementing HTTP range request support.
+    This replaces the removed bottle._file_iter_range private API.
+
+    Args:
+        fp: File-like object to read from
+        offset: Byte offset to start reading from
+        bytes_to_read: Number of bytes to read
+        maxread: Maximum chunk size (default 1MB)
+    """
+    fp.seek(offset)
+    while bytes_to_read > 0:
+        part = fp.read(min(bytes_to_read, maxread))
+        if not part:
+            break
+        bytes_to_read -= len(part)
+        yield part
 
 
 
