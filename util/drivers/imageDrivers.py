@@ -391,6 +391,8 @@ class GDALImageDriver(AbstractImageDriver):
         cls.memfile = MemoryFile
         from rasterio.windows import Window
         cls.window = Window
+        from rasterio.enums import Resampling
+        cls.resampling = Resampling
 
         # filter warnings
         import warnings
@@ -486,7 +488,7 @@ class GDALImageDriver(AbstractImageDriver):
         data = reader.read(indexes=bands,
                            window=window,
                            out_shape=out_shape,
-                           resampling=kwargs.get('resampling', 0),    # 0: nearest
+                           resampling=kwargs.get('resampling', cls.resampling.nearest),
                            boundless=True)
         if return_metadata:
             profile, meta = reader.profile, reader.meta
